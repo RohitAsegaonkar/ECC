@@ -2,8 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Elliptic Curve scalar multiplication (&#120125;&#8346;)</title>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
+    <title>Elliptic Curve point addition (&#120125;&#8346;)</title>
+    <script type="text/javascript" src="/lib/jquery.plugin.js"></script>
+    <script type="text/javascript" src="/lib/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery2.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.js"></script>
     <script type="text/javascript" src="ec.js"></script>
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro%3A400%2C700%2C900%2C400italic%2C700italic%2C900italic&#038;subset=latin%2Clatin-ext">
@@ -15,7 +18,7 @@
         <img src="vit.png" alt="Vishwakarma Institute of Technology, Pune" width="80" height="80" z-index: -1>
         <strong> Vishwakarma Institute of Technology, Pune.</strong>
       </p>
-      <h1>Elliptic Curve scalar multiplication (&#120125;<sub>p</sub>)</h1>
+      <h1>Encryption </h1>
       <nav>
         <ul>
           <li class="field">&#8477;</li>
@@ -23,7 +26,8 @@
           <li><a href="reals-mul.html">Multiplication</a></li>
           <li class="field">&#120125;<sub>p</sub></li>
           <li><a href="modk-add.html">Addition</a></li>
-          <li><a href="modk-mul.html" class="active">Multiplication</a></li>
+          <li><a href="modk-mul.html">Multiplication</a></li>
+          <li><a href="encryption.html" class="active">Encryption</a></li>
           <li><a href="about.html">About</a></li>
         </ul>
       </nav>
@@ -35,7 +39,7 @@
           <div id="curve-coefficients" class="parameters">
             <p>Curve:</p>
             <div class="parameter curve-coefficient"><label for="coefficient-a">a</label><input id="coefficient-a" name="a" value="2" type="number" step="1"></div>
-            <div class="parameter curve-coefficient"><label for="coefficient-b">b</label><input id="coefficient-b" name="b" value="3" type="number" step="1"></div>
+            <div class="parameter curve-coefficient"><label for="coefficient-b">b</label><input id="coefficient-b" name="b" value="1" type="number" step="1"></div>
           </div>
           <div id="field-coefficients" class="parameters">
             <p>Field:</p>
@@ -43,25 +47,34 @@
             <div class="placeholder"></div>
           </div>
           <div id="scalars" class="parameters">
-            <p><em>n</em>:</p>
-            <div class="parameter multiplication-factor"><label for="scalar-n">n</label><input id="scalar-n" name="n" value="2" type="number" step="1"></div>
+            <p><em>nb</em>:</p>
+            <div class="parameter multiplication-factor"><label for="scalar-n">n</label><input id="scalar-n" name="n" value="3" type="number" step="1"></div>
             <div class="placeholder"></div>
           </div>
-          <div id="point-p-coordinates" class="parameters">
-            <p><em>P</em>:</p>
-            <div class="parameter point-coordinate"><label for="point-p-x">x</label><input id="point-p-x" name="px" value="3" type="number" step="1"></div>
-            <div class="parameter point-coordinate"><label for="point-p-y">y</label><input id="point-p-y" name="py" value="6" type="number" step="1"></div>
+          <div id="point-g-coordinates" class="parameters">
+            <p><em>Point G</em>:</p>
+            <div class="parameter point-coordinate"><label for="point-g-x">x</label><input id="point-g-x" name="gx" value="0" type="number" step="1"></div>
+            <div class="parameter point-coordinate"><label for="point-g-y">y</label><input id="point-g-y" name="gy" value="1" type="number" step="1"></div>
           </div>
-          <div id="point-r-coordinates" class="parameters">
-            <p><em>Q</em> = <em>n</em> &middot; <em>P</em>:</p>
-            <div class="parameter point-coordinate result"><label for="point-q-x">x</label><input id="point-q-x" name="qx" step="any" readonly></div>
-            <div class="parameter point-coordinate result"><label for="point-q-y">y</label><input id="point-q-y" name="qy" step="any" readonly></div>
+          <div id="scalars" class="parameters">
+            <p><em>k</em>:</p>
+            <div class="parameter multiplication-factor"><label for="scalar-kr">k</label><input id="scalar-kr" name="kr" value="10" type="number" step="1"></div>
+            <div class="placeholder"></div>
+          </div>
+          <div id="point-pm-coordinates" class="parameters">
+            <p><em>Pm</em>:</p>
+            <div class="parameter point-coordinate"><label for="point-pm-x">x</label><input id="point-pm-x" name="pmx" value="71" type="number" step="1"></div>
+            <div class="parameter point-coordinate"><label for="point-pm-y">y</label><input id="point-pm-y" name="pmy" value="30" type="number" step="1"></div>
+          </div>
+          <div id="point-cm-coordinates" class="parameters">
+            <p><em>Cm</em> = <em>{kG, Pm + kPb}</em>:</p>
+            <div class="parameter point-coordinate result"><label for="point-cm-x">x</label><input id="point-cm-x" name="cmx" step="any" readonly></div>
+            <div class="parameter point-coordinate result"><label for="point-cm-y">y</label><input id="point-cm-y" name="cmy" step="any" readonly></div>
           </div>
         </div>
         <div id="summary">
-          <p>Scalar multiplication over the elliptic curve <span class="curve-equation"></span> in &#120125;<sub class="field-order"></sub>.</p>
+          <p>Point addition over the elliptic curve <span class="curve-equation"></span> in &#120125;<sub class="field-order"></sub>.</p>
           <p>The curve has <span class="curve-order"></span> points (including the point at infinity).</p>
-          <p>The subgroup generated by <em>P</em> has <span class="subgroup-order"></span> points.</p>
           <p class="curve-singular-warning"><strong>Warning:</strong> this curve is singular.</p>
           <p class="composite-warning"><strong>Warning:</strong> <em>p</em> is not a prime.</p>
         </div>
@@ -73,7 +86,7 @@
     </footer>
     <script type="text/javascript">
         $(function() {
-            $.ec.curve = new $.ec.modk.ScalarMultiplication();
+            $.ec.curve = new $.ec.modk.Encryption();
         });
     </script>
   </body>

@@ -8,7 +8,8 @@
     var colors = {
         red: "#cb4b4b",
         yellow: "#edc240",
-        blue: "#afd8f8",
+        blue: "#4672EF",
+        green:  "#41B91E"
     };
 
     /* https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/cbrt#Polyfill */
@@ -813,7 +814,7 @@
             lines: { show: true }
         });
         data.push({
-            color: colors.red,
+            color: colors.yellow,
             data: [ this.p, this.q ],
             points: { show: true, radius: 5 }
         });
@@ -1379,6 +1380,12 @@
         this.qyInput = $( "input[name='qy']" );
         this.rxInput = $( "input[name='rx']" );
         this.ryInput = $( "input[name='ry']" );
+        this.gxInput = $( "input[name='gx']" );
+        this.gyInput = $( "input[name='gy']" );
+        this.pmxInput = $( "input[name='pmx']" );
+        this.pmyInput = $( "input[name='pmy']" );
+        this.cmxInput = $( "input[name='cmx']" );
+        this.cmyInput = $( "input[name='cmy']" );
 
         this.pxInput.data( "prev", this.pxInput.val() );
         this.pyInput.data( "prev", this.pyInput.val() );
@@ -1388,12 +1395,18 @@
         this.pLabel = this.makeLabel( "P", colors.yellow );
         this.qLabel = this.makeLabel( "Q", colors.yellow );
         this.rLabel = this.makeLabel( "R", colors.red );
+        this.gLabel = this.makeLabel("G", colors.green);
+        this.pmLabel = this.makeLabel("Pm", colors.blue);
 
         var curve = this;
         $().add( this.pxInput )
            .add( this.pyInput )
            .add( this.qxInput )
            .add( this.qyInput )
+           .add( this.gxInput )
+           .add( this.gyInput )
+           .add( this.pmxInput )
+           .add( this.pmyInput )
            .change(function() { curve.update(); });
     };
 
@@ -1438,6 +1451,8 @@
         $.ec.modk.Base.prototype.getInputValues.call( this );
         this.p = this.fixPointCoordinate( this.pxInput, this.pyInput );
         this.q = this.fixPointCoordinate( this.qxInput, this.qyInput );
+        this.g = this.fixPointCoordinate( this.gxInput, this.gyInput );
+        this.pm = this.fixPointCoordinate( this.pmxInput, this.pmyInput );
     };
 
     $.ec.modk.PointAddition.prototype.recalculate = function() {
@@ -1450,12 +1465,14 @@
         this.setLabel( this.pLabel, this.p );
         this.setLabel( this.qLabel, this.q );
         this.setLabel( this.rLabel, this.r );
+        this.setLabel( this.gLabel, this.g );
+        this.setLabel( this.pmLabel, this.pm );
     };
 
     $.ec.modk.PointAddition.prototype.updateResults = function() {
         $.ec.modk.Base.prototype.updateResults.call( this );
 
-        if( this.r !== null ) {
+        if( this.r !== null) {
             this.rxInput.val( round10( this.r[ 0 ] ) );
             this.ryInput.val( round10( this.r[ 1 ] ) );
         }
@@ -1477,13 +1494,17 @@
         this.qxInput = $( "input[name='qx']" );
         this.qyInput = $( "input[name='qy']" );
 
+
         this.subgroupOrder = $( ".subgroup-order" );
 
         this.pxInput.data( "prev", this.pxInput.val() );
         this.pyInput.data( "prev", this.pyInput.val() );
 
+
         this.pLabel = this.makeLabel( "P", colors.yellow );
         this.qLabel = this.makeLabel( "Q", colors.red );
+
+
 
         var curve = this;
         $().add( this.nInput )
@@ -1506,9 +1527,9 @@
             points = points.slice( 0 );
         }
 
-        points.push( this.p );
+        points.push( this.p);
 
-        if( this.q !== null ) {
+        if( this.q == null ) {
             points.push( this.q );
         }
 
@@ -1566,6 +1587,7 @@
         $.ec.modk.Base.prototype.redraw.call( this );
         this.setLabel( this.pLabel, this.p );
         this.setLabel( this.qLabel, this.q );
+
     };
 
     $.ec.modk.ScalarMultiplication.prototype.updateResults = function() {
@@ -1582,5 +1604,123 @@
 
         this.subgroupOrder.text( this.getSubgroupOrder() );
     };
+
+    $.ec.modk.Encryption = function(){
+            $.ec.modk.Base.call( this );
+    
+            this.nInput = $( "input[name='n']" );
+            this.krInput = $( "input[name='kr']" );
+            this.gxInput = $( "input[name='gx']" );
+            this.gyInput = $( "input[name='gy']" );
+            this.pmxInput = $( "input[name='pmx']" );
+            this.pmyInput = $( "input[name='pmy']" );
+            this.cmxInput = $( "input[name='cmx']" );
+            this.cmyInput = $( "input[name='cmy']" );
+    
+            this.subgroupOrder = $( ".subgroup-order" );
+    
+            this.pmxInput.data( "prev", this.pmxInput.val() );
+            this.pmyInput.data( "prev", this.pmyInput.val() );
+            this.gxInput.data( "prev", this.gxInput.val() );
+            this.gyInput.data( "prev", this.gyInput.val() );
+    
+            this.gLabel = this.makeLabel("G", colors.green);
+            this.pmLabel = this.makeLabel("Pm", colors.blue);
+    
+    
+            var curve = this;
+            $().add( this.nInput )
+               .add( this.krInput )
+               .add( this.gxInput )
+               .add( this.gyInput )
+               .add( this.pmxInput )
+               .add( this.pmyInput )
+               .change(function() { curve.update(); });
+        };
+    
+        $.ec.modk.Encryption.prototype =
+            Object.create( $.ec.modk.Base.prototype );
+        $.ec.modk.Encryption.prototype.constructor =
+            $.ec.modk.Encryption;
+    
+        $.ec.modk.Encryption.prototype.getPlotRange = function(
+                points ) {
+            if( typeof points === "undefined" ) {
+                points = [];
+            }
+            else {
+                points = points.slice( 0 );
+            }
+    
+            points.push( this.g, this.pm);
+    
+    
+            return $.ec.modk.Base.prototype.getPlotRange.call( this, points );
+        };
+    
+        $.ec.modk.Encryption.prototype.getPlotData = function() {
+            var data = $.ec.modk.Base.prototype.getPlotData.call( this );
+    
+            data.push({
+                color: colors.blue,
+                data: [ this.pm ],
+                points: { show: true, radius: 5 }
+            });
+    
+            if( this.g !== null ) {
+                data.push({
+                    color: colors.green,
+                    data: [ this.g ],
+                    points: { show: true, radius: 5 }
+                });
+            }
+    
+            return data;
+        };
+    
+        $.ec.modk.Encryption.prototype.getSubgroupOrder = function() {
+            if( this.singular || !this.prime ) {
+                return 0;
+            }
+    
+            this.cmx = this.mulPoint(this.kr, this.g);
+            this.cmy = (this.addPoints(this.pm,(this.mulPoint(this.kr,(this.mulPoint(this.n,this.g))))));
+    
+    
+            return 1;
+        };
+    
+        $.ec.modk.Encryption.prototype.getInputValues = function() {
+            $.ec.modk.Base.prototype.getInputValues.call( this );
+            this.n = +this.nInput.val();
+            this.kr = +this.krInput.val();
+            this.g = this.fixPointCoordinate( this.gxInput, this.gyInput );
+            this.pm = this.fixPointCoordinate( this.pmxInput, this.pmyInput );
+        };
+    
+        $.ec.modk.Encryption.prototype.recalculate = function() {
+            this.cmx = this.mulPoint(this.kr, this.g);
+            this.cmy = (this.addPoints(this.pm,(this.mulPoint(this.kr,(this.mulPoint(this.n,this.g))))));
+            $.ec.modk.Base.prototype.recalculate.call( this );
+        };
+    
+        $.ec.modk.Encryption.prototype.redraw = function() {
+            $.ec.modk.Base.prototype.redraw.call( this );
+            this.setLabel( this.gLabel, this.g );
+            this.setLabel( this.pmLabel, this.pm );
+        };
+    
+        $.ec.modk.Encryption.prototype.updateResults = function() {
+            $.ec.modk.Base.prototype.updateResults.call( this );
+    
+
+                this.cmxInput.val(this.cmx);
+                this.cmyInput.val(this.cmy);
+            
+
+    
+            this.subgroupOrder.text( this.getSubgroupOrder() );
+        };
+    
 
 }( jQuery ));
