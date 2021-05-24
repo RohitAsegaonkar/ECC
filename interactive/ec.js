@@ -1722,5 +1722,120 @@
             this.subgroupOrder.text( this.getSubgroupOrder() );
         };
     
+        $.ec.modk.Decryption = function(){
+            $.ec.modk.Base.call( this );
+    
+            this.nInput = $( "input[name='n']" );
+            this.krInput = $( "input[name='kr']" );
+            this.gxInput = $( "input[name='gx']" );
+            this.gyInput = $( "input[name='gy']" );
+            this.pmxInput = $( "input[name='pmx']" );
+            this.pmyInput = $( "input[name='pmy']" );
+            this.cmxInput = $( "input[name='cmx']" );
+            this.cmyInput = $( "input[name='cmy']" );
+    
+            this.subgroupOrder = $( ".subgroup-order" );
+    
+            this.pmxInput.data( "prev", this.pmxInput.val() );
+            this.pmyInput.data( "prev", this.pmyInput.val() );
+            this.gxInput.data( "prev", this.gxInput.val() );
+            this.gyInput.data( "prev", this.gyInput.val() );
+    
+            this.gLabel = this.makeLabel("G", colors.green);
+            this.pmLabel = this.makeLabel("Pm", colors.blue);
+    
+    
+            var curve = this;
+            $().add( this.nInput )
+               .add( this.krInput )
+               .add( this.gxInput )
+               .add( this.gyInput )
+               .add( this.pmxInput )
+               .add( this.pmyInput )
+               .change(function() { curve.update(); });
+        };
+    
+        $.ec.modk.Decryption.prototype =
+            Object.create( $.ec.modk.Base.prototype );
+        $.ec.modk.Decryption.prototype.constructor =
+            $.ec.modk.Decryption;
+    
+        $.ec.modk.Decryption.prototype.getPlotRange = function(
+                points ) {
+            if( typeof points === "undefined" ) {
+                points = [];
+            }
+            else {
+                points = points.slice( 0 );
+            }
+    
+            points.push( this.g, this.pm);
+    
+    
+            return $.ec.modk.Base.prototype.getPlotRange.call( this, points );
+        };
+    
+        $.ec.modk.Decryption.prototype.getPlotData = function() {
+            var data = $.ec.modk.Base.prototype.getPlotData.call( this );
+    
+            data.push({
+                color: colors.blue,
+                data: [ this.pm ],
+                points: { show: true, radius: 5 }
+            });
+    
+            if( this.g !== null ) {
+                data.push({
+                    color: colors.green,
+                    data: [ this.g ],
+                    points: { show: true, radius: 5 }
+                });
+            }
+    
+            return data;
+        };
+    
+        $.ec.modk.Decryption.prototype.getSubgroupOrder = function() {
+            if( this.singular || !this.prime ) {
+                return 0;
+            }
+    
+            this.cmx = this.mulPoint(this.kr, this.g);
+            this.cmy = (this.addPoints(this.pm,(this.mulPoint(this.kr,(this.mulPoint(this.n,this.g))))));
+    
+    
+            return 1;
+        };
+    
+        $.ec.modk.Decryption.prototype.getInputValues = function() {
+            $.ec.modk.Base.prototype.getInputValues.call( this );
+            this.n = +this.nInput.val();
+            this.kr = +this.krInput.val();
+            this.g = this.fixPointCoordinate( this.gxInput, this.gyInput );
+            this.pm = this.fixPointCoordinate( this.pmxInput, this.pmyInput );
+        };
+    
+        $.ec.modk.Decryption.prototype.recalculate = function() {
+            this.cmx = this.mulPoint(this.kr, this.g);
+            this.cmy = (this.addPoints(this.pm,(this.mulPoint(this.kr,(this.mulPoint(this.n,this.g))))));
+            $.ec.modk.Base.prototype.recalculate.call( this );
+        };
+    
+        $.ec.modk.Decryption.prototype.redraw = function() {
+            $.ec.modk.Base.prototype.redraw.call( this );
+            this.setLabel( this.gLabel, this.g );
+            this.setLabel( this.pmLabel, this.pm );
+        };
+    
+        $.ec.modk.Decryption.prototype.updateResults = function() {
+            $.ec.modk.Base.prototype.updateResults.call( this );
+    
 
+                this.cmxInput.val(this.cmx);
+                this.cmyInput.val(this.cmy);
+            
+
+    
+            this.subgroupOrder.text( this.getSubgroupOrder() );
+        };
 }( jQuery ));
