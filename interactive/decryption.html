@@ -70,8 +70,8 @@
           </div>
           <div id="point-pm-coordinates" class="parameters">
             <p><em>Pm</em>:</p>
-            <div class="parameter point-coordinate result"><label for="point-pm-x">x</label><input id="point-pm-x" name="pmx" step = "any" readonly ></div>
-            <div class="parameter point-coordinate result"><label for="point-pm-y">y</label><input id="point-pm-y" name="pmy" step = "any" readonly ></div>
+            <div class="parameter point-coordinate result"><label for="point-pm-x">x</label><input id="point-pm-x" name="pmx" value = "71" step = "any" readonly ></div>
+            <div class="parameter point-coordinate result"><label for="point-pm-y">y</label><input id="point-pm-y" name="pmy" value = "30" step = "any" readonly ></div>
           </div>
         </div>
         <div id="summary">
@@ -88,7 +88,7 @@
     </footer>
     <script type="text/javascript">
         $(function() {
-            $.ec.curve = new $.ec.modk.Encryption();
+            $.ec.curve = new $.ec.modk.Decryption();
         });
     </script>
   </body>

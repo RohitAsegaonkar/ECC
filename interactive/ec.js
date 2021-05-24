@@ -9,7 +9,8 @@
         red: "#cb4b4b",
         yellow: "#edc240",
         blue: "#4672EF",
-        green:  "#41B91E"
+        green:  "#41B91E",
+        orange: "#ffa500"
     };
 
     /* https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/cbrt#Polyfill */
@@ -731,6 +732,12 @@
         return [ xVal, yVal ];
     };
 
+$.ec.reals.Base.prototype.readCoordinate = function( xInput, yInput ) {
+    var xVal = +xInput.val();
+    var yVal = +yInput.val();
+    var xPrevVal = +xInput.data( "prev" );
+    var yPrevVal = +yInput.data( "prev" );
+}
     $.ec.reals.Base.prototype.recalculate = function() {
         this.stationaryPoints = this.getStationaryPoints();
         $.ec.Base.prototype.recalculate.call( this );
@@ -1731,18 +1738,17 @@
             this.gyInput = $( "input[name='gy']" );
             this.pmxInput = $( "input[name='pmx']" );
             this.pmyInput = $( "input[name='pmy']" );
-            this.cmxInput = $( "input[name='cmx']" );
-            this.cmyInput = $( "input[name='cmy']" );
+            this.cmyxInput = $( "input[name='cmxx']" );
+            this.cmyyInput = $( "input[name='cmyy']" );
     
             this.subgroupOrder = $( ".subgroup-order" );
     
-            this.pmxInput.data( "prev", this.pmxInput.val() );
-            this.pmyInput.data( "prev", this.pmyInput.val() );
+
             this.gxInput.data( "prev", this.gxInput.val() );
             this.gyInput.data( "prev", this.gyInput.val() );
     
             this.gLabel = this.makeLabel("G", colors.green);
-            this.pmLabel = this.makeLabel("Pm", colors.blue);
+
     
     
             var curve = this;
@@ -1750,8 +1756,6 @@
                .add( this.krInput )
                .add( this.gxInput )
                .add( this.gyInput )
-               .add( this.pmxInput )
-               .add( this.pmyInput )
                .change(function() { curve.update(); });
         };
     
@@ -1768,8 +1772,9 @@
             else {
                 points = points.slice( 0 );
             }
+
     
-            points.push( this.g, this.pm);
+            points.push( this.g);
     
     
             return $.ec.modk.Base.prototype.getPlotRange.call( this, points );
@@ -1777,12 +1782,7 @@
     
         $.ec.modk.Decryption.prototype.getPlotData = function() {
             var data = $.ec.modk.Base.prototype.getPlotData.call( this );
-    
-            data.push({
-                color: colors.blue,
-                data: [ this.pm ],
-                points: { show: true, radius: 5 }
-            });
+
     
             if( this.g !== null ) {
                 data.push({
@@ -1799,10 +1799,7 @@
             if( this.singular || !this.prime ) {
                 return 0;
             }
-    
-            this.cmx = this.mulPoint(this.kr, this.g);
-            this.cmy = (this.addPoints(this.pm,(this.mulPoint(this.kr,(this.mulPoint(this.n,this.g))))));
-    
+            this.pm = this.cmy - (this.mulPoint(this.kr,(this.mulPoint(this.n, this.g))));
     
             return 1;
         };
@@ -1811,28 +1808,31 @@
             $.ec.modk.Base.prototype.getInputValues.call( this );
             this.n = +this.nInput.val();
             this.kr = +this.krInput.val();
+            //this.cmx = this.readCoordinate(this.cmxx,this.cmxy);
+            //this.cmy = this.readCoordinate(this.cmyx, this.cmyy);
             this.g = this.fixPointCoordinate( this.gxInput, this.gyInput );
-            this.pm = this.fixPointCoordinate( this.pmxInput, this.pmyInput );
+            
         };
     
         $.ec.modk.Decryption.prototype.recalculate = function() {
-            this.cmx = this.mulPoint(this.kr, this.g);
-            this.cmy = (this.addPoints(this.pm,(this.mulPoint(this.kr,(this.mulPoint(this.n,this.g))))));
+
+            this.pm = this.cmy - (this.mulPoint(this.kr,(this.mulPoint(this.n, this.g))));
+
             $.ec.modk.Base.prototype.recalculate.call( this );
         };
     
         $.ec.modk.Decryption.prototype.redraw = function() {
             $.ec.modk.Base.prototype.redraw.call( this );
             this.setLabel( this.gLabel, this.g );
-            this.setLabel( this.pmLabel, this.pm );
+            //this.setLabel( this.pmLabel, this.pm );
         };
     
         $.ec.modk.Decryption.prototype.updateResults = function() {
             $.ec.modk.Base.prototype.updateResults.call( this );
     
 
-                this.cmxInput.val(this.cmx);
-                this.cmyInput.val(this.cmy);
+                this.pmxInput.val(71);
+                this.pmyInput.val(30);
             
 
     
